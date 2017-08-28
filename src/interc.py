@@ -13,13 +13,42 @@ completer = AutoCompleter()
 readline.set_completer(completer.complete)
 readline.read_init_file('linereader.rc')
 default_dir = os.path.join(tempfile.gettempdir(), 'interc')
-source_file = 'interc.cc'
 o_start = 0
 
+SRC = 'a.cc'
+CXX = 'clang++'
+CXXFLAGS = '-std=c++11 -O2'
+BIN = 'a.out'
+
+
 headers = set([
-    '#include <unordered_map>',
+    '#include <array>',
+    '#include <bitset>',
+    '#include <deque>',
+    '#include <forward_list>',
+    '#include <list>',
     '#include <map>',
+    '#include <queue>',
+    '#include <string>',
+    '#include <set>',
+    '#include <stack>',
+    '#include <unordered_set>',
+    '#include <unordered_map>',
+    '#include <vector>',
+    '#include <iterator>',
+    '#include <algorithm>',
+    '#include <functional>',
+    '#include <memory>',
+    '#include <sstream>',
+    '#include <fstream>',
+    '#include <iomanip>',
     '#include <iostream>',
+    '#include <cstdlib>',
+    '#include <cstdio>',
+    '#include <cstring>',
+    '#include <ctime>',
+    '#include <cmath>',
+    '#include <cerrno>',
     '#include "prettyprint.hpp"'
 ])
 
@@ -75,17 +104,14 @@ def dump(fn, t, snippet):
 
 def interpret(fn):
     try:
-        subprocess.check_output(['clang++', '-std=c++11', '-o',
-                                 'myprogram', fn],
+        subprocess.check_output([CXX] + CXXFLAGS.split() + ['-o', BIN, fn],
                                 stderr=subprocess.STDOUT)
-#       subprocess.check_output(['g++', '-std=c++11', '-fsyntax-only',
-#                                fn],
-#                               stderr=subprocess.STDOUT)
-        result = subprocess.check_output(['./myprogram'],
+        result = subprocess.check_output(['./' + BIN],
                                          stderr=subprocess.STDOUT)
         return result.decode('utf-8')
     except subprocess.CalledProcessError as e:
-        print(e.output.decode('utf-8'), file=sys.stderr)
+        # print(e.args)
+        print(e.output.decode('utf-8') or e, file=sys.stderr)
         return None
 
 
@@ -121,8 +147,8 @@ def ic_eval(snippet):
     if not t:
         return ''
 
-    dump(source_file, t, snippet)
-    output = interpret(source_file)
+    dump(SRC, t, snippet)
+    output = interpret(SRC)
     if output is None:
         return None
     else:
